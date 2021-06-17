@@ -56,4 +56,4 @@ gem "graphql", "~> 1.9"
 
 gem 'graphiql-rails'
 
-gem 'sqlite3'
+gem 'sqlite3', '1.4.2'
