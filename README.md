@@ -21,4 +21,6 @@ Things you may want to cover:
 
 * Deployment instructions
 
+A version of this api is available at https://evening-brushlands-41637.herokuapp.com/
+
 * ...
