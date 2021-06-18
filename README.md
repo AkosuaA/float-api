@@ -22,16 +22,31 @@ A version of this API is available at https://evening-brushlands-41637.herokuapp
 ## Installation
 
 Follow these steps to install and start the app:
-You should the dependencies above already setup
+You should have the dependencies above already setup
 
+Clone this repo and `cd` into the directory:
+
+``` 
+$ git clone https://github.com/AkosuaA/float-api.git
+$ cd float-api
+```
 Then, install the required gems by running 
-    `bundle install`
+
+```
+$ bundle install
+```
 
 Then to start the server, run
-    `rails server`
+
+```
+$ rails server
+```
 
 
 ## Running Test
-To run the test, use the command
-    `rspec`
+To run the tests for this project, use the command
+
+```
+$ rspec
+```
 
