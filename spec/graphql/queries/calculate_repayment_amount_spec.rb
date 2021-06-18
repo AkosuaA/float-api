@@ -1,47 +1,117 @@
 require 'rails_helper'
+require 'date'
 module Queries
-    RSpec.describe CalculateRepaymentAmount, type: :request do
-        describe '.resolve' do
-            it 'successfully returns the repayment amount' do
+  RSpec.describe CalculateRepaymentAmount, type: :request do
+    describe '.resolve' do
+      it 'successfully returns the repayment amount' do
 
-            post '/graphql', params: { query: query(amount: 24, repaying_on: "2021-06-17") }
+        now = (Date.today + 24.days).to_date
+        post '/graphql', params: { query: query(amount: 240000, repaying_on: now.to_s) }
 
-            json = JSON.parse(response.body)
-            data = json['data']['calculateRepaymentAmount']
+        json = JSON.parse(response.body)
+        data = json['data']['calculateRepaymentAmount']
 
-            expect(data).to include(
-                'amount' => be_present,
-                'errors' => nil
-            )
-            end
+        expect(data).to include(
+          'amount' => be_present,
+          'errors' => nil
+        )
+      end
 
-            it 'fails because an invalid repayment date was provided' do
+      it 'successfully returns the repayment amount (edge-case: same day)' do
+        now = Date.today.to_date
+        post '/graphql', params: { query: query(amount: 240000, repaying_on: now.to_s) }
 
-                post '/graphql', params: { query: query(amount: 24, repaying_on: "2020-09-09") }
+        json = JSON.parse(response.body)
+        data = json['data']['calculateRepaymentAmount']
+        expect(data).to include(
+          'amount' => 2422.48,
+          'errors' => nil
+        )
+      end
+
+      it 'successfully returns the repayment amount (edge-case: 30 days)' do
+        now = (Date.today + 30.days).to_date
+        post '/graphql', params: { query: query(amount: 240000, repaying_on: now.to_s) }
+
+        json = JSON.parse(response.body)
+        data = json['data']['calculateRepaymentAmount']
+        expect(data).to include(
+          'amount' => 2497.85,
+          'errors' => nil
+        )
+      end
+
+      it 'fails because an invalid repayment date was provided (negative duration)' do
+
+        now = (Date.today - 30.days).to_date
+        post '/graphql', params: { query: query(amount: 240000, repaying_on: now.to_s) }
     
-                json = JSON.parse(response.body)
-                puts json
-                # data = json['data']['author']
+        json = JSON.parse(response.body)
+
+        data = json['data']['calculateRepaymentAmount']
+
+        expect(data).to include(
+          'amount' => 0.0,
+          'errors' => [
+            {
+              "message" => "repayment date is invalid"
+            }   
+          ]
+        )
+      end
+
+
+      it 'fails because an invalid repayment date was provided (duration greater than 30)' do
+
+        now = (Date.today + 60.days).to_date
+        post '/graphql', params: { query: query(amount: 240000, repaying_on: now.to_s) }
     
-                # expect(data).to include(
-                #     'id'          =&gt; be_present,
-                #     'firstName'   =&gt; 'Lee',
-                #     'lastName'    =&gt; 'Child',
-                #     'dateOfBirth' =&gt; '1954-10-29',
-                #     'books'       =&gt; [{ 'id' =&gt; book.id.to_s }]
-                # )
-                end            
-        end
+        json = JSON.parse(response.body)
+
+        data = json['data']['calculateRepaymentAmount']
+
+        expect(data).to include(
+          'amount' => 0.0,
+          'errors' => [
+            {
+              "message" => "repayment date is invalid"
+            }   
+          ]
+        )
+
+      end
+
+      it 'fails because an invalid repayment date was provided (edge case: 31 days)' do
+
+        now = (Date.today + 31.days).to_date
+        post '/graphql', params: { query: query(amount: 240000, repaying_on: now.to_s) }
     
-        def query(amount:, repaying_on:)
-            <<~GQL
-            query {
-                calculateRepaymentAmount(amount: #{amount}, repayingOn: "#{repaying_on}") {
-                amount
-                errors
-                }
-            }
-            GQL
-        end 
+        json = JSON.parse(response.body)
+
+        data = json['data']['calculateRepaymentAmount']
+
+        expect(data).to include(
+          'amount' => 0.0,
+          'errors' => [
+            {
+              "message" => "repayment date is invalid"
+            }   
+          ]
+        )
+      end
     end
+    
+    def query(amount:, repaying_on:)
+      <<~GQL
+      query {
+        calculateRepaymentAmount(amount: #{amount}, repayingOn: "#{repaying_on}") {
+        amount
+        errors {
+            message
+        }
+        }
+      }
+      GQL
+    end 
+  end
 end

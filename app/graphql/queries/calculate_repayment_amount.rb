@@ -2,7 +2,9 @@ require 'date'
 
 module Queries
   class CalculateRepaymentAmount < Queries::BaseQuery
-    INTEREST_RATE = 0.00133
+    # Monthly interest rate = 4%. Daily interest rate = 0.001333
+    INTEREST_RATE = 0.001333
+
     description "Calculate the amount to be repaid"
 
     argument :amount, Float, required: true
@@ -16,13 +18,20 @@ module Queries
 
       duration = (repaying_on.to_date - now.to_date).to_i
       
-      if duration < 0
-        errors << "repayment date is invalid"
+      # repayment date must be current day or more and limited to 30 days
+      if duration < 0 || duration > 30
+        errors << { "message" => "repayment date is invalid" }
         { amount: 0, errors: errors }
       else
+        # set duration to 7 if less than a week since minimum tenure is 1 week
         duration = 7 if duration < 7
-        amount = (amount + ( amount * (((1 + INTEREST_RATE) ** duration) - 1)))/100
-        {amount: amount.round(2)}
+
+        #calculate total amount repaid: A = P * ((1 + r)**T)
+        total_repaid = amount * ((1 + INTEREST_RATE)** duration)
+
+        #convert to Naira
+        total_repaid = total_repaid / 100
+        {amount: total_repaid.round(2)}
       end
     end
   end

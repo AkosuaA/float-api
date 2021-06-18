@@ -1,26 +1,37 @@
-# README
+# FLOAT API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Description
+This project provides a GraphQL API to be used by Float customers to retrieve their repayment amount.
 
-Things you may want to cover:
+The API contains one query, calculateRepaymentAmount that accepts two required arguments
+ - amount: A decimal representing the amount to be borrowed in kobo
+ - repayingOn: A date representing when the borrower intends to pay back the 
+ loan
 
-* Ruby version
+The API returns the following:
+ - amount: A decimal represent the total amount to be repaid in Naira.
+ - errors: A String array containing errors in the request (if any)
 
-* System dependencies
+A version of this API is available at https://evening-brushlands-41637.herokuapp.com/graphiql
 
-* Configuration
+## Dependencies:
 
-* Database creation
+* Ruby version - 2.7.3
+* Rails version - 6.1.3.2
 
-* Database initialization
+## Installation
 
-* How to run the test suite
+Follow these steps to install and start the app:
+You should the dependencies above already setup
 
-* Services (job queues, cache servers, search engines, etc.)
+Then, install the required gems by running 
+    `bundle install`
 
-* Deployment instructions
+Then to start the server, run
+    `rails server`
 
-A version of this api is available at https://evening-brushlands-41637.herokuapp.com/
 
-* ...
+## Running Test
+To run the test, use the command
+    `rspec`
+
